@@ -598,6 +598,8 @@ const LEVELS: Level[] = [
 
 // --- SERVICES ---
 
+// --- SERVICES ---
+
 class UserDataService {
   static async saveEmail(email: string, name: string): Promise<void> {
     try {
@@ -616,26 +618,6 @@ class UserDataService {
       console.error("Erreur réseau:", error);
     }
   }
-  
-  static async saveDelay(levelId: number, delayWeeks: number, userName: string): Promise<void> {
-    try {
-      const response = await fetch('/api/save-delay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          levelId, 
-          delayWeeks, 
-          userName,
-          timestamp: new Date().toISOString() 
-        })
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'enregistrement du délai:", error);
-    }
-  }
-}
   
   static async saveDelay(levelId: number, delayWeeks: number, userName: string): Promise<void> {
     try {
