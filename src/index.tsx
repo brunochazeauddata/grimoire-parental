@@ -1743,12 +1743,9 @@ const App = () => {
 const convexUrl = import.meta.env.VITE_CONVEX_URL || "https://adventurous-starfish-166.convex.cloud";
 const convex = new ConvexReactClient(convexUrl);
 
-// Puis au moment de rendre l'application, enveloppez-la :
+const root = createRoot(document.getElementById('root')!);
 root.render(
   <ConvexProvider client={convex}>
     <App />
   </ConvexProvider>
 );
-
-const root = createRoot(document.getElementById('root')!);
-root.render(<App />);
