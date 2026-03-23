@@ -1,0 +1,7 @@
+{
+  "description": "L'application d'apprentissage de la PNL pour les parents, guidée par une Fée Marraine.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "name": "Le Grimoire Parental"
+}
