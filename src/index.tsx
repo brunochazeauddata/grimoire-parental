@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useMutation } from "convex/react";
 import { ConvexProvider, ConvexReactClient, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-
 
 // --- DATA STRUCTURES ---
 
@@ -36,7 +34,7 @@ const LEVELS: Level[] = [
     title: "Le Regard de l'Âme",
     pnl_concept: "Calibrage (Calibration)",
     book_reference: "La PNL avec les enfants",
-    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. ✨ PETIT SECRET : Si tu persévères jusqu'au niveau 3, une merveilleuse surprise t'attend ! ✨",
+    fairy_speech: "Bienvenue. Pour guider, il faut d'abord apprendre à voir. Pas seulement regarder, mais capter l'invisible.",
     theory: "En PNL, le 'Calibrage' est la capacité à remarquer les changements physiologiques subtils chez une autre personne. Souvent, en tant que parents, nous sommes des 'lecteurs de pensée' : nous projetons nos interprétations ('Il boude', 'Il est fatigué') au lieu d'observer les faits bruts. \n\nLe vrai calibrage consiste à observer sans juger : la couleur de la peau qui change, la lèvre inférieure qui tremble légèrement, le rythme de la respiration qui s'accélère, la dilatation des pupilles. C'est l'acuité sensorielle. \n\nAvant qu'un enfant ne crie, son corps a déjà envoyé dix signaux d'alerte. Si vous apprenez à calibrer ces micro-signaux, vous pourrez intervenir au moment magique : avant la crise. C'est la différence entre réagir et accompagner.",
     quiz: [
       {
@@ -65,7 +63,7 @@ const LEVELS: Level[] = [
     title: "Le Miroir des Images (V)",
     pnl_concept: "VAK (Visuel)",
     book_reference: "La PNL avec les enfants",
-    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. ✨ PETIT SECRET : Si tu persévères jusqu'au niveau 10, une merveilleuse surprise t'attend ! ✨",
+    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. ✨ PETIT SECRET : Si tu persévères jusqu'au niveau 3, une merveilleuse surprise t'attend ! ✨",
     theory: "Nous filtrons la réalité à travers nos sens (VAKOG). L'enfant 'Visuel' pense en images. Pour lui, comprendre, c'est 'voir'. Il parle souvent vite (pour suivre le défilement des images dans sa tête), respire haut dans la poitrine, et utilise des prédicats comme : 'C'est clair', 'Je vois', 'C'est brillant', 'Regarde'. \n\nSi vous lui donnez des explications longues et sans images, il décroche. Pour connecter avec lui, vous devez peindre avec vos mots. Soyez ordonné visuellement, regardez-le dans les yeux, et utilisez des métaphores colorées.",
     quiz: [
       {
@@ -595,9 +593,6 @@ const LEVELS: Level[] = [
   }
 ];
 
-
-// --- SERVICES ---
-
 // --- SERVICES ---
 
 class UserDataService {
@@ -616,25 +611,6 @@ class UserDataService {
       }
     } catch (error) {
       console.error("Erreur réseau:", error);
-    }
-  }
-  
-  static async saveDelay(levelId: number, delayWeeks: number, userName: string): Promise<void> {
-    try {
-      const response = await fetch('/api/save-delay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          levelId, 
-          delayWeeks, 
-          userName,
-          timestamp: new Date().toISOString() 
-        })
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'enregistrement du délai:", error);
     }
   }
 }
@@ -1028,14 +1004,15 @@ const PortalScreen = ({ onEnter }: { onEnter: (name: string, count: string, emai
 
   const handleOpen = async () => {
   if (name.trim().length > 0 && email.trim().length > 0 && email.includes('@')) {
+    await audioManager.unlockAudioContext(); // <-- Débloque le son immédiatement !
     audioManager.playMagicSound('portal_open');
     setIsOpening(true);
     
-    // 👇 Appelez directement la fonction onEnter (qui elle-même appelle saveEmail)
     setTimeout(() => {
       onEnter(name, childrenCount, email);
     }, 2000); 
   } else {
+    await audioManager.unlockAudioContext();
     audioManager.playMagicSound('error');
     alert("Veuillez renseigner votre nom et une adresse email valide.");
   }
@@ -1327,18 +1304,14 @@ const MapScreen = ({ maxReachedLevel, onStartLevel, userName }: { maxReachedLeve
   );
 };
 
-// 4. LEVEL DETAIL SCREEN avec flèches de retour et demande de délai
-const LevelDetailScreen = ({ level, onComplete, onBack, saveDelay }: { level: Level, onComplete: () => void, onBack: () => void, saveDelay: any }) => {
+// 4. LEVEL DETAIL SCREEN avec le message de conclusion simple
+const LevelDetailScreen = ({ level, onComplete, onBack }: { level: Level, onComplete: () => void, onBack: () => void }) => {
   const [step, setStep] = useState<'theory' | 'quiz' | 'mission' | 'delay'>('theory');
   const [quizIndex, setQuizIndex] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [selectedDelay, setSelectedDelay] = useState<number | null>(null);
-  const [userName, setUserName] = useState('');
 
   useEffect(() => {
      audioManager.setStatusListener(setIsAudioPlaying);
-     const savedName = localStorage.getItem('grandArtName') || '';
-     setUserName(savedName);
      return () => audioManager.setStatusListener(() => {});
   }, []);
 
@@ -1357,38 +1330,6 @@ const LevelDetailScreen = ({ level, onComplete, onBack, saveDelay }: { level: Le
       alert("Ce n'est pas tout à fait ça. Réessayez, noble parent.");
     }
   };
-
-  const handleDelaySelection = (weeks: number) => {
-    setSelectedDelay(weeks);
-  };
-
-  const handleConfirmDelay = async () => {
-  if (selectedDelay) {
-    try {
-      await saveDelay({ 
-        levelId: level.id, 
-        delayDays: selectedDelay,  // Note : la variable s'appelle encore delayWeeks mais stocke des jours
-        userName,
-        timestamp: new Date().toISOString() 
-      });
-      audioManager.playMagicSound('success_chime');
-      
-      // Message personnalisé selon le délai
-      let delayText = '';
-      if (selectedDelay === 1) delayText = '1 jour';
-      else if (selectedDelay === 3) delayText = '3 jours';
-      else delayText = '1 semaine';
-      
-      alert(`Merci ! Vous avez choisi de pratiquer pendant ${delayText}. La magie opérera à son rythme.`);
-      setStep('delay');
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Une erreur est survenue");
-    }
-  } else {
-    alert("Veuillez choisir un délai pour votre pratique.");
-  }
-};
 
   const toggleVoice = async () => {
     if (isAudioPlaying) {
@@ -1492,7 +1433,7 @@ const LevelDetailScreen = ({ level, onComplete, onBack, saveDelay }: { level: Le
               <p style={{ fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'center', whiteSpace: 'pre-wrap' }}>{level.real_mission}</p>
             </div>
             <div style={{ textAlign: 'center' }}>
-               <GoldenButton onClick={() => setStep('delay')}>Mission Acceptée</GoldenButton>
+               <GoldenButton onClick={() => { audioManager.playMagicSound('click_soft'); setStep('delay'); }}>Mission Acceptée</GoldenButton>
             </div>
           </div>
         )}
@@ -1504,7 +1445,6 @@ const LevelDetailScreen = ({ level, onComplete, onBack, saveDelay }: { level: Le
               Pour que la magie opère, prenez tout le temps dont vous avez besoin pour mettre cette mission en pratique dans la vraie vie. N'allez pas trop vite. Le Grimoire sera là à votre retour.
             </p>
             <div style={{ textAlign: 'center' }}>
-              {/* En cliquant ici, on valide directement le niveau et on retourne sur la carte */}
               <GoldenButton onClick={() => onComplete()}>
                 Terminer le niveau
               </GoldenButton>
@@ -1526,9 +1466,7 @@ const App = () => {
   const [maxReachedLevel, setMaxReachedLevel] = useState(1);
   const [currentPlayingLevelId, setCurrentPlayingLevelId] = useState(1);
 
-  // 👇 Ajoutez ces deux lignes
   const saveEmail = useMutation(api.emails.saveEmail);
-  const saveDelay = useMutation(api.delays.saveDelay);
 
   useEffect(() => {
     const savedName = localStorage.getItem('grandArtName');
@@ -1544,25 +1482,25 @@ const App = () => {
   }, []);
 
   const handlePortalEnter = async (name: string, count: string, email: string) => {
-  localStorage.setItem('grandArtName', name);
-  localStorage.setItem('grandArtChildCount', count);
-  localStorage.setItem('grandArtEmail', email);
-  setUserName(name);
-  setUserEmail(email);
-  
-  try {
-    await saveEmail({ 
-      email, 
-      name, 
-      timestamp: new Date().toISOString() 
-    });
-    console.log("✅ Email enregistré avec succès");
-  } catch (error) {
-    console.error("❌ Erreur lors de l'enregistrement:", error);
-  }
-  
-  setScreen('map');
-};
+    localStorage.setItem('grandArtName', name);
+    localStorage.setItem('grandArtChildCount', count);
+    localStorage.setItem('grandArtEmail', email);
+    setUserName(name);
+    setUserEmail(email);
+    
+    try {
+      await saveEmail({ 
+        email, 
+        name, 
+        timestamp: new Date().toISOString() 
+      });
+      console.log("✅ Email enregistré avec succès");
+    } catch (error) {
+      console.error("❌ Erreur lors de l'enregistrement:", error);
+    }
+    
+    setScreen('map');
+  };
 
   const handleStartLevel = (levelId: number) => {
     if (levelId > LEVELS.length) {
@@ -1677,7 +1615,7 @@ const App = () => {
       
       {screen === 'map' && <MapScreen maxReachedLevel={maxReachedLevel} userName={userName} onStartLevel={handleStartLevel} />}
       
-      {screen === 'level' && <LevelDetailScreen level={currentLevelData} onComplete={handleLevelComplete} onBack={handleBackToMap} saveDelay={saveDelay} />}
+      {screen === 'level' && <LevelDetailScreen level={currentLevelData} onComplete={handleLevelComplete} onBack={handleBackToMap} />}
 
       <footer style={{ marginTop: 'auto', padding: '20px', fontSize: '0.7rem', opacity: 0.4, position: 'relative', zIndex: 10 }}>
         © Le Grimoire Parental - Architecture Pédagogique
@@ -1687,7 +1625,6 @@ const App = () => {
 };
 
 // Initialiser le client Convex
-// L'URL doit venir de l'environnement ou d'une valeur par défaut
 const convexUrl = import.meta.env.VITE_CONVEX_URL || "https://adventurous-starfish-166.convex.cloud";
 const convex = new ConvexReactClient(convexUrl);
 
