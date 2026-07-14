@@ -1468,6 +1468,22 @@ const App = () => {
 
   const saveEmail = useMutation(api.emails.saveEmail);
 
+  // NOUVEAU : Débloquer l'audio au tout premier clic n'importe où sur l'écran
+  useEffect(() => {
+    const initAudioOnFirstClick = async () => {
+      await audioManager.unlockAudioContext();
+      audioManager.playAmbience(); // Lance le son de fond
+      // Une fois activé, on retire l'écouteur pour ne pas le lancer en boucle
+      document.removeEventListener('click', initAudioOnFirstClick);
+    };
+    
+    document.addEventListener('click', initAudioOnFirstClick);
+    
+    return () => {
+      document.removeEventListener('click', initAudioOnFirstClick);
+    };
+  }, []);
+
   useEffect(() => {
     const savedName = localStorage.getItem('grandArtName');
     const savedLevel = localStorage.getItem('grandArtLevel');
@@ -1492,7 +1508,6 @@ const App = () => {
       await saveEmail({ 
         email, 
         name, 
-        childrenCount: count,
         timestamp: new Date().toISOString() 
       });
       console.log("✅ Email enregistré avec succès");
