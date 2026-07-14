@@ -5,6 +5,7 @@ export default defineSchema({
   emails: defineTable({
     email: v.string(),
     name: v.string(),
+    childrenCount: v.optional(v.string()),
     timestamp: v.string(),
   }),
   delays: defineTable({
