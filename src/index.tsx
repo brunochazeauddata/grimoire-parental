@@ -36,7 +36,7 @@ const LEVELS: Level[] = [
     title: "Le Regard de l'Âme",
     pnl_concept: "Calibrage (Calibration)",
     book_reference: "La PNL avec les enfants",
-    fairy_speech: "Bienvenue. Pour guider, il faut d'abord apprendre à voir. Pas seulement regarder, mais capter l'invisible.",
+    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. ✨ PETIT SECRET : Si tu persévères jusqu'au niveau 3, une merveilleuse surprise t'attend ! ✨",
     theory: "En PNL, le 'Calibrage' est la capacité à remarquer les changements physiologiques subtils chez une autre personne. Souvent, en tant que parents, nous sommes des 'lecteurs de pensée' : nous projetons nos interprétations ('Il boude', 'Il est fatigué') au lieu d'observer les faits bruts. \n\nLe vrai calibrage consiste à observer sans juger : la couleur de la peau qui change, la lèvre inférieure qui tremble légèrement, le rythme de la respiration qui s'accélère, la dilatation des pupilles. C'est l'acuité sensorielle. \n\nAvant qu'un enfant ne crie, son corps a déjà envoyé dix signaux d'alerte. Si vous apprenez à calibrer ces micro-signaux, vous pourrez intervenir au moment magique : avant la crise. C'est la différence entre réagir et accompagner.",
     quiz: [
       {
@@ -1005,7 +1005,7 @@ const getTreePhase = (level: number) => {
     return 3;
 };
 
-const canShowMagicMirror = (level: number) => level >= 10;
+const canShowMagicMirror = (level: number) => level >= 3;
 
 // --- SCREENS ---
 
@@ -1214,7 +1214,7 @@ const MapScreen = ({ maxReachedLevel, onStartLevel, userName }: { maxReachedLeve
   
   useEffect(() => {
     const hasSeen = localStorage.getItem('hasSeenMirrorUnlock') === 'true';
-    if (maxReachedLevel >= 10 && !hasSeen) {
+    if (maxReachedLevel >= 3 && !hasSeen) {
       setTimeout(() => {
         setShowUnlockDialog(true);
         audioManager.playMagicSound('success_chime');
@@ -1498,71 +1498,19 @@ const LevelDetailScreen = ({ level, onComplete, onBack, saveDelay }: { level: Le
         )}
 
         {step === 'delay' && (
-  <div className="fade-in">
-    <h3 style={{ color: GOLDEN_THEME.colors.gold, textAlign: 'center' }}>Un moment pour la pratique</h3>
-    <p style={{ textAlign: 'center', marginBottom: '20px' }}>
-      Pour que la magie opère, accordez-vous un temps de mise en pratique.
-    </p>
-    <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '30px', flexWrap: 'wrap' }}>
-      {/* Modifiez les boutons ici */}
-      <button
-        onClick={() => handleDelaySelection(1)}
-        style={{
-          padding: '15px 25px',
-          background: selectedDelay === 1 ? GOLDEN_THEME.colors.gold : 'rgba(255,215,0,0.1)',
-          border: `1px solid ${GOLDEN_THEME.colors.gold}`,
-          color: selectedDelay === 1 ? '#1a0b2e' : GOLDEN_THEME.colors.gold,
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontFamily: GOLDEN_THEME.fonts.header,
-          fontWeight: 'bold',
-          transition: 'all 0.3s'
-        }}
-      >
-        ☀️ 1 jour
-      </button>
-      
-      <button
-        onClick={() => handleDelaySelection(3)}
-        style={{
-          padding: '15px 25px',
-          background: selectedDelay === 3 ? GOLDEN_THEME.colors.gold : 'rgba(255,215,0,0.1)',
-          border: `1px solid ${GOLDEN_THEME.colors.gold}`,
-          color: selectedDelay === 3 ? '#1a0b2e' : GOLDEN_THEME.colors.gold,
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontFamily: GOLDEN_THEME.fonts.header,
-          fontWeight: 'bold',
-          transition: 'all 0.3s'
-        }}
-      >
-        🌙 3 jours
-      </button>
-      
-      <button
-        onClick={() => handleDelaySelection(7)}
-        style={{
-          padding: '15px 25px',
-          background: selectedDelay === 7 ? GOLDEN_THEME.colors.gold : 'rgba(255,215,0,0.1)',
-          border: `1px solid ${GOLDEN_THEME.colors.gold}`,
-          color: selectedDelay === 7 ? '#1a0b2e' : GOLDEN_THEME.colors.gold,
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontFamily: GOLDEN_THEME.fonts.header,
-          fontWeight: 'bold',
-          transition: 'all 0.3s'
-        }}
-      >
-        📅 1 semaine
-      </button>
-    </div>
-    <div style={{ textAlign: 'center' }}>
-      <GoldenButton onClick={handleConfirmDelay} disabled={!selectedDelay}>
-        Confirmer et continuer
-      </GoldenButton>
-    </div>
-  </div>
-)}
+          <div className="fade-in">
+            <h3 style={{ color: GOLDEN_THEME.colors.gold, textAlign: 'center' }}>Un moment pour la pratique</h3>
+            <p style={{ textAlign: 'center', marginBottom: '30px', lineHeight: '1.6' }}>
+              Pour que la magie opère, prenez tout le temps dont vous avez besoin pour mettre cette mission en pratique dans la vraie vie. N'allez pas trop vite. Le Grimoire sera là à votre retour.
+            </p>
+            <div style={{ textAlign: 'center' }}>
+              {/* En cliquant ici, on valide directement le niveau et on retourne sur la carte */}
+              <GoldenButton onClick={() => onComplete()}>
+                Terminer le niveau
+              </GoldenButton>
+            </div>
+          </div>
+        )}
 
       </MagicCard>
     </div>
