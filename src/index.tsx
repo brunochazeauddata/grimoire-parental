@@ -1492,6 +1492,7 @@ const App = () => {
       await saveEmail({ 
         email, 
         name, 
+        childrenCount: count,
         timestamp: new Date().toISOString() 
       });
       console.log("✅ Email enregistré avec succès");
