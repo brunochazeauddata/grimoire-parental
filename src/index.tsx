@@ -63,7 +63,7 @@ const LEVELS: Level[] = [
     title: "Le Miroir des Images (V)",
     pnl_concept: "VAK (Visuel)",
     book_reference: "La PNL avec les enfants",
-    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. ✨ PETIT SECRET : Si tu persévères jusqu'au niveau 3, une merveilleuse surprise t'attend ! ✨",
+    fairy_speech: "Chaque enfant habite un monde différent. Certains vivent dans une galerie de tableaux. PETIT SECRET : Si tu persévères jusqu'au niveau 3, une merveilleuse surprise t'attend ! ",
     theory: "Nous filtrons la réalité à travers nos sens (VAKOG). L'enfant 'Visuel' pense en images. Pour lui, comprendre, c'est 'voir'. Il parle souvent vite (pour suivre le défilement des images dans sa tête), respire haut dans la poitrine, et utilise des prédicats comme : 'C'est clair', 'Je vois', 'C'est brillant', 'Regarde'. \n\nSi vous lui donnez des explications longues et sans images, il décroche. Pour connecter avec lui, vous devez peindre avec vos mots. Soyez ordonné visuellement, regardez-le dans les yeux, et utilisez des métaphores colorées.",
     quiz: [
       {
